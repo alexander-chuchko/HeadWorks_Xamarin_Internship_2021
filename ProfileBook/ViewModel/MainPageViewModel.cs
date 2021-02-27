@@ -1,6 +1,7 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
+using ProfileBook.View;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,20 +10,18 @@ namespace ProfileBook.ViewModel
 {
     public class MainPageViewModel:BindableBase
     {
-        //private string _name;
         public DelegateCommand NavigationToSingUp { get; set; }
-        private INavigationService navigationService;
-        public MainPageViewModel(INavigationService navigationService)//:base (navigationService)
+        private readonly INavigationService navigationService;
+        //public DelegateCommand NavigateCommand => navigationToSingUp ?? (navigationToSingUp = new DelegateCommand(ExecuteNavigateCommand));
+        public MainPageViewModel(INavigationService navigationService)
         {
-           //Title = "Main Page";
             this.navigationService = navigationService;
-            NavigationToSingUp = new DelegateCommand(NavigationToSingUpCall);
+            NavigationToSingUp = new DelegateCommand(ExecuteNavigateCommand);
         }
-        public void NavigationToSingUpCall() 
+        async void ExecuteNavigateCommand()
         {
-            navigationService.NavigateAsync("PageSingUp");
+            await navigationService.NavigateAsync("SignUp");
         }
-      
         /*
         public string Name
         {

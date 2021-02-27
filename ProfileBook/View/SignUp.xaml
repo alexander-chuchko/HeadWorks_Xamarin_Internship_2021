@@ -28,6 +28,11 @@
                     </Button.Triggers>
                 </Button>
             </StackLayout>
+            <StackLayout>
+                <Button BackgroundColor="Red" Command="{Binding GoBackCommand}">
+                    
+                </Button>
+            </StackLayout>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

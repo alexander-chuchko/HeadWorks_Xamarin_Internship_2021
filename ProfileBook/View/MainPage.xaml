@@ -31,6 +31,12 @@
                    HorizontalTextAlignment="Center"
                    Margin="10">
             </Label>
+            <Button BackgroundColor="Blue" 
+                    TextColor="Red"
+                    BorderColor="Aquamarine"
+                    Command="{Binding Path= NavigationToSingUp}"
+                    >
+            </Button>
         </StackLayout>
     </StackLayout>
 </ContentPage>

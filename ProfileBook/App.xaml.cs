@@ -1,4 +1,5 @@
-﻿using Prism.Ioc;
+﻿using Prism;
+using Prism.Ioc;
 using Prism.Unity;
 using ProfileBook.Services;
 using ProfileBook.Services.Interface;
@@ -11,13 +12,18 @@ using Xamarin.Forms.Xaml;
 
 namespace ProfileBook
 {
-    public partial class App : PrismApplication
+    public partial class App //: PrismApplication
     {
-        public App()
+        public App()//: this(null)
         {
             //MainPage = new ProfileBook.MainPage();  ///new NavigationPage(new ProfileBook.MainPage()); // ProfileBook.View.SignUpView(); // MainPage();
         }
-
+        /*
+        public App(IPlatformInitializer initializer):base(initializer)
+        {
+            
+        }
+        */
         protected override void OnStart()
         {
 
@@ -43,11 +49,15 @@ namespace ProfileBook
             containerRegistry.RegisterForNavigation<SignUp, SingUpViewModel>();
         }
 
-        protected override void OnInitialized()
+        protected override async void OnInitialized()
         {
             InitializeComponent();
             //Кладем первую страницу в стек навигации
-            NavigationService.NavigateAsync($"{nameof(MainPage)}");
+            var result=await NavigationService.NavigateAsync("NavigationPage/MainPage");
+            if(!result.Success)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
         }
     }
 }
