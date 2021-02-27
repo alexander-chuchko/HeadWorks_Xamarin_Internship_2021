@@ -18,7 +18,7 @@ namespace ProfileBook.ViewModel
             this.navigationService = navigationService;
             NavigationToSingUp = new DelegateCommand(NavigationToSingUpCall);
         }
-        public void NavigationToSingUpCall()
+        public void NavigationToSingUpCall() 
         {
             navigationService.NavigateAsync("PageSingUp");
         }
