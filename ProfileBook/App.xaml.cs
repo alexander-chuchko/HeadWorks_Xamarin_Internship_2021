@@ -1,6 +1,7 @@
 ﻿using Prism;
 using Prism.Ioc;
 using Prism.Unity;
+using ProfileBook.Service;
 using ProfileBook.Services;
 using ProfileBook.Services.Interface;
 using ProfileBook.View;
@@ -41,12 +42,14 @@ namespace ProfileBook
         {
             //Services
             containerRegistry.RegisterInstance<IRepository>(Container.Resolve<Repository>());
+            containerRegistry.RegisterInstance<IAuthenticationService>(Container.Resolve<AuthenticationService>());
             //Navigation
             //регистрируем страницу навигации
             containerRegistry.RegisterForNavigation<NavigationPage>();
             //регистрируем страницу в контейнере
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
             containerRegistry.RegisterForNavigation<SignUp, SingUpViewModel>();
+            containerRegistry.RegisterForNavigation<MainList, MainListViewModel>();
         }
 
         protected override async void OnInitialized()

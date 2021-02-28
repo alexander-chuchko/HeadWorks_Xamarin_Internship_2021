@@ -1,36 +1,53 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ProfileBook.View.SignUp">
+             x:Class="ProfileBook.View.SignUp"
+             Title="{Binding TitlePage}">
     <ContentPage.Content>
         <StackLayout>
-            <StackLayout>
-                <Frame BackgroundColor="#2196F3" Padding="5" CornerRadius="0">
-                    <Label Text="Users SiginIn" HorizontalTextAlignment="Start" Margin="10" TextColor="White" FontSize="18"/>
-                </Frame>
+            <StackLayout VerticalOptions="EndAndExpand"  Padding="25">
+                <Entry x:Name="Login1"
+                       Placeholder="Login"
+                       Text="{Binding Login, Mode=OneWayToSource}"
+                       ></Entry>
+                <Entry x:Name="Password1"
+                       Placeholder="Password"
+                       IsPassword="True"
+                       Text="{Binding Password, Mode=OneWayToSource}"
+                       ></Entry>
+                <Entry x:Name="ConfirmPassword1"
+                       Placeholder="Confirm Password"
+                       IsPassword="True"
+                       Text="{Binding ConfirmPasword, Mode=OneWayToSource}"
+                       ></Entry>
             </StackLayout>
             <StackLayout VerticalOptions="EndAndExpand"  Padding="25">
-                <Entry x:Name="Login1" Placeholder="Login"></Entry>
-                <Entry x:Name="Password1" Placeholder="Password" IsPassword="True"></Entry>
-                <Entry x:Name="ConfirmPassword1" Placeholder="Password" IsPassword="True"></Entry>
-            </StackLayout>
-            <StackLayout VerticalOptions="EndAndExpand"  Padding="25">
-                <Button IsEnabled="False" Text="SIGN IN" TextColor="Black" BackgroundColor="Orange" CornerRadius="5"  FontSize="18"  BorderWidth="3" BorderColor="Black">
+                <Button IsEnabled="False"
+                        Text="SIGN UP"
+                        TextColor="Black"
+                        BackgroundColor="Orange"
+                        CornerRadius="5"
+                        FontSize="18"
+                        BorderWidth="3"
+                        BorderColor="Black"
+                        Command="{Binding commandVerefication}"
+                        >
                     <Button.Triggers>
                         <MultiTrigger TargetType="Button">
                             <MultiTrigger.Conditions>
-                                <BindingCondition Binding="{Binding Source={x:Reference Login1}, Path=Text.Length}" Value="1"/>
-                                <BindingCondition Binding="{Binding Source={x:Reference Password1}, Path=Text.Length}" Value="1"/>
-                                <BindingCondition Binding="{Binding Source={x:Reference ConfirmPassword1}, Path=Text.Length}" Value="1"/>
+                                <BindingCondition 
+                                    Binding="{Binding Source={x:Reference Login1},
+                                    Path=Text.Length}" Value="1"/>
+                                <BindingCondition
+                                    Binding="{Binding Source={x:Reference Password1}, 
+                                    Path=Text.Length}" Value="1"/>
+                                <BindingCondition
+                                    Binding="{Binding Source={x:Reference ConfirmPassword1},
+                                    Path=Text.Length}" Value="1"/>
                             </MultiTrigger.Conditions>
                             <Setter Property="IsEnabled" Value="True" />
                         </MultiTrigger>
                     </Button.Triggers>
-                </Button>
-            </StackLayout>
-            <StackLayout>
-                <Button BackgroundColor="Red" Command="{Binding GoBackCommand}">
-                    
                 </Button>
             </StackLayout>
         </StackLayout>

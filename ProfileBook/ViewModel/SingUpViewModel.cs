@@ -1,7 +1,10 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
-
+using ProfileBook.Service;
+using ProfileBook.View;
+using System.Windows.Input;
+using Xamarin.Forms;
 
 namespace ProfileBook.ViewModel
 {
@@ -9,29 +12,57 @@ namespace ProfileBook.ViewModel
     {
         public DelegateCommand GoBackCommand { get; set; }
         private readonly INavigationService navigationService;
-        //public DelegateCommand NavigateCommand => navigationToSingUp ?? (navigationToSingUp = new DelegateCommand(ExecuteNavigateCommand));
-        public SingUpViewModel(INavigationService navigationService)
+        private IAuthenticationService authenticationService;
+        public ICommand commandVerefication => new Command(ExecuteVereficationLoginAndPasswordAndConfirmPassword);
+        private string titlePage;
+        private string login;
+        private string password;
+        private string confirmPasword;
+        public SingUpViewModel(INavigationService navigationService, IAuthenticationService authenticationService)
         {
             this.navigationService = navigationService;
             GoBackCommand = new DelegateCommand(ExecuteNavigateCommand);
+            this.authenticationService = authenticationService;
+            TitlePage = ($"{ nameof(SignUp)}");
         }
         async void ExecuteNavigateCommand()
         {
             await navigationService.GoBackAsync();
         }
-        /*
-        public DelegateCommand navigationToSingUp;
-        private readonly INavigationService navigationService;
-        public DelegateCommand NavigateCommand => navigationToSingUp ?? (navigationToSingUp = new DelegateCommand(ExecuteNavigateCommand));
-        public SingUpViewModel(INavigationService navigationService)
+        public string TitlePage
         {
-            this.navigationService = navigationService;
+            get => titlePage;
+            set => SetProperty(ref titlePage, value);
         }
-        async void ExecuteNavigateCommand()
+        public string Login
         {
-            //await navigationService.NavigateAsync($"{nameof(MainPage)}");
-            await navigationService.GoBackAsync();
+            get => login;
+            set => SetProperty(ref login, value);
         }
-        */
+        public string Password
+        {
+            get => password;
+            set => SetProperty(ref password, value);
+        }
+        public string ConfirmPasword
+        {
+            get => confirmPasword;
+            set => SetProperty(ref confirmPasword, value);
+        }
+        public async void ExecuteVereficationLoginAndPasswordAndConfirmPassword()
+        {
+            var result = this.authenticationService.IsCheckLoginAndPasswordAndConfirmPassword(Login, Password, ConfirmPasword);
+            if (result)
+            {
+                //выполняем проверку в БД
+
+                //Происходит навигация на главную страницу
+                await navigationService.NavigateAsync("MainList");
+            }
+            else
+            {
+                //Вызываем сообщение об ошибке
+            }
+        }
     }
 }
