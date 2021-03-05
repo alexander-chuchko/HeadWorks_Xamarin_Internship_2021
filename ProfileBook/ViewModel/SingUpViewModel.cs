@@ -1,68 +1,119 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
+using ProfileBook.Model;
 using ProfileBook.Service;
+using ProfileBook.Service.UserDialog;
+using ProfileBook.Services.Interface;
 using ProfileBook.View;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace ProfileBook.ViewModel
 {
-    class SingUpViewModel: BindableBase
+    class SingUpViewModel: BindableBase, IInitializeAsync
     {
-        public DelegateCommand GoBackCommand { get; set; }
+        //fields of class
+        private string _titlePage;
+        private string _login;
+        private string _password;
+        private string _confirmPasword;
+        private bool _isEnabled;
+
+        public ICommand SignUpCommand { get; set; }
+        public ICommand CommandGoBack { get; set; }
+        private readonly IRepository repository; 
         private readonly INavigationService navigationService;
-        private IAuthenticationService authenticationService;
-        public ICommand commandVerefication => new Command(ExecuteVereficationLoginAndPasswordAndConfirmPassword);
-        private string titlePage;
-        private string login;
-        private string password;
-        private string confirmPasword;
-        public SingUpViewModel(INavigationService navigationService, IAuthenticationService authenticationService)
+        private readonly IAuthenticationService authenticationService;
+        private ObservableCollection<UserModel> userList;
+
+        public SingUpViewModel(INavigationService navigationService, IRepository repository, IAuthenticationService authenticationService)
         {
+            Login = string.Empty;
+            Password = string.Empty;
+            ConfirmPassword = string.Empty;
             this.navigationService = navigationService;
-            GoBackCommand = new DelegateCommand(ExecuteNavigateCommand);
             this.authenticationService = authenticationService;
-            TitlePage = ($"{ nameof(SignUp)}");
-        }
-        async void ExecuteNavigateCommand()
-        {
-            await navigationService.GoBackAsync();
+            this.repository = repository;
+            SignUpCommand = new DelegateCommand(Execute, CanExecute).ObservesProperty(() => IsEnabled);
+            CommandGoBack = new DelegateCommand(ExecuteGoBack);
+            TitlePage = ($"{ nameof(SignUp)}");  
         }
         public string TitlePage
         {
-            get => titlePage;
-            set => SetProperty(ref titlePage, value);
+            get => _titlePage;
+            set => SetProperty(ref _titlePage, value);
         }
         public string Login
         {
-            get => login;
-            set => SetProperty(ref login, value);
+            get => _login;
+            set => SetProperty(ref _login, value);
         }
         public string Password
         {
-            get => password;
-            set => SetProperty(ref password, value);
+            get => _password;
+            set => SetProperty(ref _password, value);
         }
-        public string ConfirmPasword
+        public string ConfirmPassword
         {
-            get => confirmPasword;
-            set => SetProperty(ref confirmPasword, value);
+            get => _confirmPasword;
+            set => SetProperty(ref _confirmPasword, value);
         }
-        public async void ExecuteVereficationLoginAndPasswordAndConfirmPassword()
+        public bool IsEnabled
         {
-            var result = this.authenticationService.IsCheckLoginAndPasswordAndConfirmPassword(Login, Password, ConfirmPasword);
-            if (result)
+            get { return _isEnabled; }
+            set { SetProperty(ref _isEnabled, value); }
+        }
+        public ObservableCollection<UserModel> UserList
+        {
+            get => userList;
+            set => SetProperty(ref userList, value);
+        }
+        public void SignIn()
+        {
+            navigationService.NavigateAsync("MainList");
+        }
+        async void ExecuteGoBack()
+        {
+            var parametr = new NavigationParameters();
+            parametr.Add("Currenlogin", Login);
+            await navigationService.GoBackAsync(parametr);
+        }
+        public async void AddUserModel()
+        {
+            await repository.InsertAsync<UserModel>(new UserModel() { Login = Login, Password = Password });
+        }
+        public void Execute()
+        {
+            var a = Helper.IsValidatedLoginAndPasswordAndConfirmPassword(Login, Password, ConfirmPassword);
+            var b = authenticationService.IsLoginUniqe(UserList, Login);
+            if (a&&b)
             {
-                //выполняем проверку в БД
-
-                //Происходит навигация на главную страницу
-                await navigationService.NavigateAsync("MainList");
+                //If the check is successful, then add the modelUser to the database
+                AddUserModel();
+                //и навигируемся на страницу
+                ExecuteGoBack();
             }
             else
             {
-                //Вызываем сообщение об ошибке
+                Login = string.Empty;
+                Password = string.Empty;
+                ConfirmPassword = string.Empty;
             }
+        }
+        public bool CanExecute()
+        {
+            return IsEnabled;
+        }
+        //Метод срабатывает при переходе на страницу View
+        public async Task InitializeAsync(INavigationParameters parameters)
+        {
+            //Get a profileList from the repository
+            var userList = await repository.GetAllAsync<UserModel>();
+            //Set a profilelist in the ProfileList
+            UserList = new ObservableCollection<UserModel>(userList);
         }
     }
 }

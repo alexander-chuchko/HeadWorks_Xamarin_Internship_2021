@@ -6,5 +6,6 @@ namespace ProfileBook.ViewModel
 {
     class MainListViewModel
     {
+
     }
 }
