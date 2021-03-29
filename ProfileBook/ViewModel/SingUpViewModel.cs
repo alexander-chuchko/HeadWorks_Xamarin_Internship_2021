@@ -31,6 +31,7 @@ namespace ProfileBook.ViewModel
 
         public SingUpViewModel(INavigationService navigationService, IRepository repository, IAuthenticationService authenticationService)
         {
+            IsEnabled = false;
             Login = string.Empty;
             Password = string.Empty;
             ConfirmPassword = string.Empty;
@@ -75,11 +76,12 @@ namespace ProfileBook.ViewModel
         {
             navigationService.NavigateAsync("MainList");
         }
-        async void ExecuteGoBack()
+        public async void ExecuteGoBack()
         {
             var parametr = new NavigationParameters();
             parametr.Add("Currenlogin", Login);
-            await navigationService.GoBackAsync(parametr);
+            await navigationService.NavigateAsync("/MainPage", parametr);
+            //await navigationService.GoBackAsync(parametr);
         }
         public async void AddUserModel()
         {
@@ -87,9 +89,7 @@ namespace ProfileBook.ViewModel
         }
         public void Execute()
         {
-            var a = Helper.IsValidatedLoginAndPasswordAndConfirmPassword(Login, Password, ConfirmPassword);
-            var b = authenticationService.IsLoginUniqe(UserList, Login);
-            if (a&&b)
+            if (Validation.IsValidatedLoginAndPasswordAndConfirmPassword(Login, Password, ConfirmPassword) && authenticationService.IsLoginUniqe(UserList, Login))
             {
                 //If the check is successful, then add the modelUser to the database
                 AddUserModel();

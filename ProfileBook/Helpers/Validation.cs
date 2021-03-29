@@ -6,19 +6,17 @@ using Acr.UserDialogs;
 
 namespace ProfileBook
 {
-    public static class Helper
+    public static class Validation
     {
         private static Regex patternForLogin;
         private static Regex patternForPassword;
-        const int maxSignsForLoginAndPassword=16;
-        const int minSignsForLogin = 4;
-        const int minSignsForPassword=8;
-        static Helper()
+
+        static Validation()
         {
             patternForLogin = new Regex(@"(^[^0-9]{4,16})");
             patternForPassword = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,16}");
         }
-        public static bool IsCheckLoginAndPassword(string login, string password)
+        public static bool IsValidatedLoginAndPassword(string login, string password)
         {
             if (patternForLogin.IsMatch(login))
             {
@@ -65,6 +63,17 @@ namespace ProfileBook
                 UserDialogs.Instance.Alert("Login must be at least 4 and no more than 16 characters and not start with numbers!", "Invalid data entered");
                 return false;
             } 
+        }
+
+        //Method for checking the existence of information
+        public static bool IsInformationInNameAndNickName(string name, string nickName)
+        {
+            if(name.Length!=0&&nickName.Length!=0)
+            {
+                return true;
+            }
+            UserDialogs.Instance.Alert("Name and NickName fields must be filled!", "Invalid data entered");
+            return false;
         }
     }
 }

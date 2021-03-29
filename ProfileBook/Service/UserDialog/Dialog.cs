@@ -42,5 +42,9 @@ namespace ProfileBook.Service.UserDialog
             };
             Result = await UserDialogs.Instance.ConfirmAsync(confirmConfig);
         }
+        public void CallActionSheet()
+        {
+
+        }
     }
 }

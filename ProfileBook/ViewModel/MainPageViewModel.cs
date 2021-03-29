@@ -1,27 +1,48 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
+using ProfileBook.Model;
 using ProfileBook.Service;
+using ProfileBook.Services.Interface;
 using ProfileBook.View;
+using System;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace ProfileBook.ViewModel
 {
-    public class MainPageViewModel:BindableBase, INavigatedAware
+    public class MainPageViewModel:BindableBase, INavigatedAware, IInitializeAsync
     {
+        //fields
         private string _titlePage;
         private string _login;
         private string _password;
         private bool _isEnabled;
+        private int id;
 
         private IAuthenticationService authenticationService;
         private INavigationService navigationService;
-        //Properties
+        private readonly IRepository repository;
+        private ObservableCollection<UserModel> userList;
+        //properties
         public ICommand NavigationToSingUp { get; set; }
         public ICommand SignInCommand { get; set; }
-        
+
+        public MainPageViewModel(INavigationService navigationService, IAuthenticationService authenticationService, IRepository repository)
+        {
+            IsEnabled = false;
+            Login = string.Empty;
+            Password = string.Empty;
+            this.repository = repository;
+            this.navigationService = navigationService;
+            this.authenticationService = authenticationService;
+            SignInCommand = new DelegateCommand(Execute, CanExecute).ObservesProperty(() => IsEnabled);//For verefication and navigation
+            NavigationToSingUp = new DelegateCommand(ExecuteNavigateToSignUp); //NavigationToSingUp for navigation to page SignUp(Tab Label)
+            TitlePage = ($"{ nameof(MainPage)}");
+        }
         public string TitlePage
         {
             get => _titlePage;
@@ -42,41 +63,31 @@ namespace ProfileBook.ViewModel
             get { return _isEnabled; }
             set { SetProperty(ref _isEnabled, value); }
         }
-        public MainPageViewModel(INavigationService navigationService, IAuthenticationService authenticationService)
+        public ObservableCollection<UserModel> UserList
         {
-            Login = string.Empty;
-            Password = string.Empty;
-
-            this.navigationService = navigationService;
-            this.authenticationService = authenticationService;
-            SignInCommand = new DelegateCommand(Execute, CanExecute).ObservesProperty(() => IsEnabled);
-            NavigationToSingUp = new DelegateCommand(ExecuteNavigateCommand);
-            TitlePage = ($"{ nameof(MainPage)}");
+            get => userList;
+            set => SetProperty(ref userList, value);
         }
-        public async void ExecuteVereficationLoginAndPassword()
+        //Go to the main page of the application
+        public async void ExecuteNavigateToListView()
         {
-            //var result=this.authenticationService.IsCheckLoginAndPassword(Login, Password);
-            //if(!result)
-            if(true)
-            {
-                //выполняем проверку в БД
-                //Происходит навигация на главную страницу
-                await navigationService.NavigateAsync(($"{ nameof(SignUp)}"));
-            }
-            else
-            {
-                //Вызываем сообщение об ошибке
-            }
+            //get id the logged-in user
+            id = authenticationService.Id;
+            var parametr = new NavigationParameters();
+            parametr.Add("CurrentId", id);
+            await navigationService.NavigateAsync(($"/{ nameof(NavigationPage)}/{ nameof(MainList)}"), parametr);
         }
-        //Переходим на страницу SignUp
-        public async void ExecuteNavigateCommand()
+        public async void ExecuteNavigateToSignUp()
         {
             await navigationService.NavigateAsync(($"{ nameof(SignUp)}"));
         }
         public void Execute()
         {
-            var result = Helper.IsCheckLoginAndPassword(Login, Password);
-            if (!result)
+            if (Validation.IsValidatedLoginAndPassword(Login, Password) && authenticationService.IsRelevantLoginAndPassword(UserList, Login, Password))
+            {
+                ExecuteNavigateToListView();
+            }
+            else
             {
                 Login = string.Empty;
                 Password = string.Empty;
@@ -86,22 +97,20 @@ namespace ProfileBook.ViewModel
         {
             return IsEnabled;
         }
-
         public void OnNavigatedTo(INavigationParameters parameters)
         {
-            //Login = parameters.ToString();
             Login = parameters.GetValue<string>("Currenlogin");
-            //Login = parameters["Currenlogin"].ToString();
         }
-
         public void OnNavigatedFrom(INavigationParameters parameters)
         {
 
         }
-        /*
-async void ExecuteNav()
-{
-await navigationService.NavigateAsync("SignUp");
-}*/
+        public async Task InitializeAsync(INavigationParameters parameters)
+        {
+            //Get a profileList from the repository
+            var userList = await repository.GetAllAsync<UserModel>();
+            //Set a profilelist in the ProfileList
+            UserList = new ObservableCollection<UserModel>(userList);
+        }
     }
 }

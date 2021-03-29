@@ -8,5 +8,7 @@ namespace ProfileBook.Service.UserDialog
     {
         bool Result { get; set; }
         void CallDialogue();
+        void CallActionSheet();
+
     }
 }

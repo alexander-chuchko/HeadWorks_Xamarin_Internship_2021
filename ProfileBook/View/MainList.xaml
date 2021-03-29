@@ -1,32 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ProfileBook.View.MainList">
-  <ListView x:Name="MyListView"
-            ItemsSource="{Binding Items}"
-            ItemTapped="Handle_ItemTapped"
-            CachingStrategy="RecycleElement">
-    <!--Built in Cells-->
-    <ListView.ItemTemplate>
-        <DataTemplate>
-            <TextCell Text="{Binding .}" />
-        </DataTemplate>
-    </ListView.ItemTemplate>
-    
-    <!--Custom View Cells-->
-    <!--
-    <ListView.ItemTemplate>
-      <DataTemplate>
-        <ViewCell>
-          <StackLayout>
-            <Label Text="{Binding Text}" 
-                   Style="{DynamicResource ListItemTextStyle}" />
-            <Label Text="{Binding Detail}" 
-                   Style="{DynamicResource ListItemDetailTextStyle}"/>
-          </StackLayout>
-        </ViewCell>
-      </DataTemplate>
-    </ListView.ItemTemplate>
-    -->
-  </ListView>
+             x:Class="ProfileBook.View.MainList"
+             xmlns:local="clr-namespace:ProfileBook.ViewModel"
+             xmlns:prism="clr-namespace:Prism.Unity;assembly=Prism.Unity.Forms"
+             Title="{Binding TitlePage, Mode=TwoWay}">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem IconImageSource="ic_exit_to_app.png" Priority="1" Order="Primary" Command="{Binding NavigationToSingIn}"/>
+        <ToolbarItem IconImageSource="ic_settings.png" Priority="2" Order="Primary" Command="{Binding NavigationToSettingsView}"/>
+    </ContentPage.ToolbarItems>
+    <Grid RowDefinitions="70,*">
+        <!--
+        <Grid Grid.Row="0" ColumnDefinitions="0.3*,0.3*,0.3*">
+            <Button Text="Add" Grid.Column="0"></Button>
+            <Entry Placeholder="First Name" Grid.Column="1" VerticalOptions="Center"></Entry>
+            <Entry Placeholder="LastName" Grid.Column="2" VerticalOptions="Center"></Entry>
+        </Grid>
+        -->
+        <ListView x:Name="MyListView" 
+                  Margin="15" Grid.Row="1" 
+                  ItemsSource="{Binding ProfileList}"
+                  SelectedItem="{Binding SelectedItem}"
+                  HasUnevenRows="True">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.ContextActions>
+                            <MenuItem Text="EDIT" Command="{Binding Path=BindingContext.NavigationToAddEditProfilePage, Source={x:Reference Name=MyListView}}"/>
+                            <MenuItem Text="DELETE" Command="{Binding OnDeleteItem}"/>
+                        </ViewCell.ContextActions>
+                        <ViewCell.View>
+                            <StackLayout HeightRequest="280" Margin="10" Padding="30">
+                                <Image Source="{Binding ImageSource}" WidthRequest="45" HeightRequest="60" />
+                                <Label TextColor="Black" Text="{Binding NickName}"/>
+                                <Label TextColor="Black" Text="{Binding Name}"/>
+                                <Label TextColor="Black" Text="{Binding MomentOfRegistration}"/>
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button Grid.Row="1"
+                Text="ADD" 
+                BorderColor="#2b3c3c" 
+                BorderWidth="1" 
+                FontAttributes="Bold" 
+                BackgroundColor="#4ba862" 
+                BorderRadius="40" 
+                TextColor="White" 
+                HorizontalOptions="End" 
+                WidthRequest="80" 
+                HeightRequest="80" 
+                Margin="0,0,20,22" 
+                VerticalOptions="End"
+                Command="{Binding Path=NavigationToAddEditProfilePage}"
+                ></Button>
+    </Grid>
 </ContentPage>
